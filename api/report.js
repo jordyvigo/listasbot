@@ -1,19 +1,30 @@
-import fs from 'fs';
-import path from 'path';
+import { MongoClient } from 'mongodb';
 
-export default function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri);
+const dbName = 'radios';
+const collectionName = 'radios';
 
-  const data = req.body;
-  const filePath = path.resolve('./', 'activity_log.json');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
-  let current = [];
-  if (fs.existsSync(filePath)) {
-    current = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    const doc = {
+      deviceId: req.body.deviceId || 'sin_id',
+      time: req.body.time || new Date().toISOString(),
+      link: req.body.link || '',
+      seo_used: req.body.seo_used || false
+    };
+
+    await collection.insertOne(doc);
+    res.status(200).json({ status: 'ok' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al guardar en MongoDB' });
+  } finally {
+    await client.close();
   }
-
-  current.push(data);
-  fs.writeFileSync(filePath, JSON.stringify(current, null, 2));
-
-  res.status(200).json({ status: 'ok' });
 }
