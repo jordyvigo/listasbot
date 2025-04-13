@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reporte de Actividad - FarmBot</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    h1 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.5rem; border: 1px solid #ccc; text-align: left; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>📊 Reporte de Actividad</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Dispositivo</th>
+        <th>Link</th>
+        <th>¿SEO?</th>
+        <th>Hora</th>
+      </tr>
+    </thead>
+    <tbody id="log"></tbody>
+  </table>
+
+  <script>
+    fetch('/activity_log.json')
+      .then(res => res.json())
+      .then(data => {
+        const body = document.getElementById('log');
+        data.reverse().forEach(entry => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${entry.deviceId}</td>
+            <td><a href="${entry.link}" target="_blank">${entry.link}</a></td>
+            <td>${entry.seo_used ? '✅' : '❌'}</td>
+            <td>${new Date(entry.time).toLocaleString()}</td>
+          `;
+          body.appendChild(row);
+        });
+      })
+      .catch(err => {
+        document.getElementById('log').innerHTML = '<tr><td colspan="4">No se pudo cargar activity_log.json</td></tr>';
+      });
+  </script>
+</body>
+</html>
