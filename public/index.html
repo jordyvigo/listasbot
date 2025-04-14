@@ -27,11 +27,13 @@
   </table>
 
   <script>
-    fetch('/activity_log.json')
+    // Apunta al nuevo endpoint
+    fetch('/api/activity_log')
       .then(res => res.json())
       .then(data => {
         const body = document.getElementById('log');
-        data.reverse().forEach(entry => {
+        // invertimos para mostrar primero lo más reciente
+        data.forEach(entry => {
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${entry.deviceId}</td>
@@ -43,7 +45,9 @@
         });
       })
       .catch(err => {
-        document.getElementById('log').innerHTML = '<tr><td colspan="4">No se pudo cargar activity_log.json</td></tr>';
+        console.error(err);
+        document.getElementById('log').innerHTML =
+          '<tr><td colspan="4">No se pudo cargar la actividad</td></tr>';
       });
   </script>
 </body>
