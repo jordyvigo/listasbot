@@ -23,16 +23,23 @@
         <th>Hora</th>
       </tr>
     </thead>
-    <tbody id="log"></tbody>
+    <tbody id="log">
+      <tr><td colspan="4">Cargando...</td></tr>
+    </tbody>
   </table>
 
   <script>
-    // Apunta al nuevo endpoint
+    // Depuración: imprime status y errores
     fetch('/api/activity_log')
-      .then(res => res.json())
+      .then(res => {
+        console.log('Fetch /api/activity_log status:', res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(data => {
+        console.log('Data recibida:', data);
         const body = document.getElementById('log');
-        // invertimos para mostrar primero lo más reciente
+        body.innerHTML = ''; // limpia el mensaje de "Cargando..."
         data.forEach(entry => {
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -45,7 +52,7 @@
         });
       })
       .catch(err => {
-        console.error(err);
+        console.error('Error al cargar actividad:', err);
         document.getElementById('log').innerHTML =
           '<tr><td colspan="4">No se pudo cargar la actividad</td></tr>';
       });
