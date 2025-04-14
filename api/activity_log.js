@@ -1,4 +1,4 @@
-// pages/api/activity_log.js
+// api/activity_log.js
 import clientPromise from '../lib/mongodb';
 
 export default async function handler(req, res) {
@@ -9,8 +9,12 @@ export default async function handler(req, res) {
 
   try {
     const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'radios');
-    const collection = db.collection('logs');
+    const dbName = process.env.DB_NAME || 'radios';            // tu BD se llama "radios"
+    const db = client.db(dbName);
+
+    // aquí cambias 'logs' por 'radios'
+    const collName = process.env.COLLECTION_NAME || 'radios';
+    const collection = db.collection(collName);
 
     const data = await collection
       .find({})
@@ -21,7 +25,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(data);
   } catch (error) {
-    console.error('Error al leer activity_log:', error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('❌ /api/activity_log error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
